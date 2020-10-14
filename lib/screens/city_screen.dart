@@ -1,17 +1,25 @@
+import 'dart:convert';
+import 'package:WeatherO/provider/data_provider.dart';
+import 'package:provider/provider.dart';
+
+import "../models/models.dart";
 import 'package:WeatherO/widgets/custom_drawer.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 class ManageCity extends StatefulWidget {
   @override
   _ManageCityState createState() => _ManageCityState();
 }
 
 class _ManageCityState extends State<ManageCity> {
-  List _city = ["A", "B", "C", "D"];
+  //List<City> _cityList= [];
   bool _isSearching = false;
   final _globalKey = GlobalKey<ScaffoldState>();
+  bool isLoading =false;
   @override
   Widget build(BuildContext context) {
+    final dataProvider = Provider.of<DataProvider>(context);
+    List<City> _cityList = dataProvider.cities;
     final size = MediaQuery.of(context).size;
     return Scaffold(
       key: _globalKey,
@@ -63,10 +71,12 @@ class _ManageCityState extends State<ManageCity> {
                 top: 20,
               ),
                   child: ReorderableListView(
-                    onReorder: (int oldIndex, int newIndex) {},
-                    children: _city.map((x) {
+                    onReorder: (int oldIndex, int newIndex) {
+                      dataProvider.reorderCityList(oldIndex, newIndex);
+                    },
+                    children: _cityList.map((x) {
                       return Container(
-                        key: ValueKey(x),
+                        key: ValueKey(x.name),
                         //height: size.aspectRatio*200,
                         //color: Colors.black45,
                         child: Card(
@@ -74,10 +84,12 @@ class _ManageCityState extends State<ManageCity> {
                           elevation: 6,
                           child: ListTile(
                             leading: Icon(Icons.location_on),
-                            title: Text("London"),
-                            subtitle: Text("United Kingdom"),
+                            title: Text(x.name),
+                            subtitle: Text(x.adminDistrict.toString()+","+x.country.toString()),
                             trailing: IconButton(
-                                icon: Icon(Icons.delete), onPressed: () {}),
+                                icon: Icon(Icons.delete), onPressed: () {
+                                  dataProvider.removeCity(x);
+                                }),
                           ),
                         ),
                       );
@@ -87,13 +99,14 @@ class _ManageCityState extends State<ManageCity> {
               ],
             ),
           ),
-          _isSearching ? _search() : Container(),
+          _isSearching ? _search(dataProvider) : Container(),
         ],
       ),
     );
   }
-
-  Widget _search() {
+List<City> _tempCityList=[];
+  Widget _search(DataProvider dataProvider) {
+    final _searchedList = dataProvider.searchedCity;
     return Container(
       color: Colors.white,
       margin: EdgeInsets.only(top: 40),
@@ -121,14 +134,10 @@ class _ManageCityState extends State<ManageCity> {
                           ),
                         ),
                       ),
-                      onChanged: (value) {
-                        if (value.isNotEmpty) {
-                          /* autoCompleteSearch(value);
-                        } else {
-                          if (predictions.length > 0 && mounted) {
-                            setState(() {
-                              predictions = [];
-                            });*/
+                      onChanged: (value) async{
+                        if (value.isNotEmpty && value.length>1) {
+                          print(value);
+                          dataProvider.getCity(value);
                         }
                       }),
                 ),
@@ -138,20 +147,27 @@ class _ManageCityState extends State<ManageCity> {
                       setState(() {
                         _isSearching = false;
                       });
+                      dataProvider.makeVoidSearchList();
                     })
               ],
             ),
           ),
           Expanded(
-              child: ListView.builder(
-                  itemCount: 10,
+              child: isLoading?Center(child: CircularProgressIndicator(),): ListView.builder(
+                  itemCount: _searchedList.length,
                   itemBuilder: (context, index) {
                     return ListTile(
                       leading: Icon(Icons.location_on),
-                      title: Text('London'),
-                      subtitle: Text("United Kingdom"),
+                      title: Text(_searchedList[index].name),
+                      subtitle: Text(_searchedList[index].adminDistrict.toString() +","+_searchedList[index].country.toString()),
                       trailing:
-                          IconButton(icon: Icon(Icons.add), onPressed: () {}),
+                          IconButton(icon: Icon(Icons.add), onPressed: () {
+                            print("hello");
+                            dataProvider.addCity(_searchedList[index]);
+                            setState(() {
+                              _isSearching=false;
+                            });
+                          }),
                     );
                   }))
         ],

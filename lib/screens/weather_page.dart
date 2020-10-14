@@ -1,16 +1,20 @@
 import 'dart:convert';
-import '../data.dart';
+import 'package:WeatherO/models/models.dart';
+import 'package:WeatherO/screens/next_days.dart';
+
 import 'package:flutter/material.dart';
 import 'package:WeatherO/widgets/color_icons.dart';
 import 'package:WeatherO/widgets/info_widgets.dart';
 import 'package:WeatherO/widgets/side_text.dart';
 
-class App extends StatefulWidget {
+class WeatherPage extends StatefulWidget {
+  final City city;
+  WeatherPage(this.city);
   @override
-  _AppState createState() => _AppState();
+  _WeatherPageState createState() => _WeatherPageState();
 }
 
-class _AppState extends State<App> {
+class _WeatherPageState extends State<WeatherPage> {
   @override
   void initState() {
     super.initState();
@@ -32,12 +36,12 @@ class _AppState extends State<App> {
             child: Column(
               children: [
                 SideText(
-                  text: "London" + ",",
+                  text: widget.city.name + ",",
                   fontSize: 23,
                   color: Colors.black,
                 ),
                 SideText(
-                  text: "United Kingdom",
+                  text: widget.city.adminDistrict!=null?widget.city.adminDistrict+","+widget.city.country:widget.city.country,
                   fontSize: 20,
                   color: Colors.black,
                 ),
@@ -137,23 +141,27 @@ class _AppState extends State<App> {
                     ),
                   ),
                   Container(
+                    margin: EdgeInsets.only(top:30),
                     //color:Colors.redAccent,
-                    height: size.aspectRatio * 350, // .18,
+                    height: size.aspectRatio * 250, // .18,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         InfoWidget(
-                            icon: Icons.ac_unit,
-                            value: "9" + "KM/H",
-                            color: [Colors.blue, Colors.blue[100]]),
+                          
+                            Icons.ac_unit,
+                            "9" + "KM/H",
+                            [Colors.blue, Colors.blue[100]]),
                         InfoWidget(
-                            icon: Icons.access_alarms,
-                            value: "67" + "%",
-                            color: [Colors.brown, Colors.brown[100]]),
+                          
+                            Icons.access_alarms,
+                            "67" + "%",
+                            [Colors.brown, Colors.brown[100]]),
                         InfoWidget(
-                            icon: Icons.access_alarms,
-                            value: "67" + "%",
-                            color: [Colors.amber, Colors.amber[100]])
+                          
+                            Icons.access_alarms,
+                            "67" + "%",
+                            [Colors.amber, Colors.amber[100]])
                       ],
                     ),
                   ),
@@ -170,7 +178,9 @@ class _AppState extends State<App> {
                             style: TextStyle(fontSize: 17),
                           ),
                           GestureDetector(
-                            onTap: _decode,
+                            onTap: (){
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context){return NextDays();}));
+                            },
                             child: Text("Next 7 days >",
                                 style: TextStyle(fontSize: 17)),
                           )
@@ -226,25 +236,8 @@ class _AppState extends State<App> {
       ),
     );
   }
-
-  void _decode() {
-    print("object");
-    var x = json.decode(data);
-    print(x["hourly"][0]);
-    print(x["hourly"][1]);
-    List hourly = x["hourly"];
-    hourly.forEach((element) {
-      DateTime x = DateTime.fromMillisecondsSinceEpoch(element["dt"] * 1000,
-          isUtc: true);
-      DateTime currentTimeZone = x.add(Duration(hours: 5, minutes: 30));
-      print("count=$currentTimeZone");
-    });
-    //today data
-
-    var xy =
-        DateTime.fromMillisecondsSinceEpoch(1602300468 * 1000, isUtc: true);
-    print(xy);
-  }
+  
+  
 
   final List<String> hourdata = [
     "4",

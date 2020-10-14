@@ -1,6 +1,9 @@
-import 'package:WeatherO/screens/home_screen.dart';
+import 'package:WeatherO/models/models.dart';
+import 'package:WeatherO/provider/data_provider.dart';
+import 'package:WeatherO/screens/weather_page.dart';
 import 'package:WeatherO/widgets/custom_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -10,7 +13,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   PageController _pageController;
   int pageIndex = 0;
-  List _listPlaces = ["A", "B", "C", "D"];
   final _globalKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
@@ -21,7 +23,13 @@ class _HomeState extends State<Home> {
       });
       //print(_pageController.page);
     });
+    
     super.initState();
+  }
+  @override
+  void didChangeDependencies() {
+    Provider.of<DataProvider>(context).init();
+    super.didChangeDependencies();
   }
 
   @override
@@ -33,6 +41,8 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final dataProvider = Provider.of<DataProvider>(context);
+    final List<City> _cityList=dataProvider.cities;
     return Scaffold(
       key: _globalKey,
       drawer: CustomDrawer(),
@@ -71,8 +81,8 @@ class _HomeState extends State<Home> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: _listPlaces.map((e) {
-                              if (_listPlaces.indexOf(e) == pageIndex) {
+                            children: _cityList.map((e) {
+                              if (_cityList.indexOf(e) == pageIndex) {
                                 return Container(
                                     height: 5, width: 5, color: Colors.amber);
                               } else {
@@ -88,7 +98,7 @@ class _HomeState extends State<Home> {
                   Expanded(
                     child: PageView(
                       controller: _pageController,
-                      children: [App(), App(), App(), App()],
+                      children: _cityList.map((city) => WeatherPage(city)).toList(),
                     ),
                   ),
                 ],
