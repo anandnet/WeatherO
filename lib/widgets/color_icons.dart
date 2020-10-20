@@ -1,5 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+
 class ColorIcons extends StatelessWidget {
   final String name;
   final double size;
@@ -12,20 +12,3 @@ class ColorIcons extends StatelessWidget {
         child: Image.asset("assets/icons/" + name + ".png"));
   }
 }
-
-/*
-class ColorIcons {
-  final BuildContext context;
-  ColorIcons(this.context);
-  void init() async {
-    final manifestContent =
-        await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
-    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    print(manifestMap);
-    final imagePaths = manifestMap.keys
-        .where((String key) => key.contains('assets/icons/'))
-        .where((String key) => key.contains('.png'))
-        .toList();
-    print(imagePaths);
-  }
-}*/

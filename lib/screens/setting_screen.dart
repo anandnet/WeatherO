@@ -43,8 +43,11 @@ class _SettingScreenState extends State<SettingScreen> {
                           size: 40,
                         ),
                       ),
-                      Text("Settings",style: TextStyle(fontSize:20),),
-                      SizedBox(width:40)
+                      Text(
+                        "Settings",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      SizedBox(width: 40)
                     ],
                   ),
                 ),

@@ -12,18 +12,21 @@ class CustomDrawer extends StatelessWidget {
           child: Container(
         margin: EdgeInsets.only(top: 150),
         child: Column(children: [
-           _tile("Home", Icons.home, () {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+          _tile("Home", Icons.home, () {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
               return Home();
             }));
           }),
           _tile("Manage City", Icons.add, () {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
               return ManageCity();
             }));
           }),
           _tile("Settings", Icons.settings, () {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
               return SettingScreen();
             }));
           })
@@ -34,13 +37,16 @@ class CustomDrawer extends StatelessWidget {
 
   Widget _tile(String title, IconData icon, Function onTap) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topRight: Radius.circular(25),bottomRight: Radius.circular(25)),),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+            topRight: Radius.circular(25), bottomRight: Radius.circular(25)),
+      ),
       shadowColor: Color(0xff536DFE),
       elevation: 6,
       child: ListTile(
-    leading: Icon(icon),
-    title: Text(title),
-    onTap: onTap,
+        leading: Icon(icon),
+        title: Text(title),
+        onTap: onTap,
       ),
     );
   }

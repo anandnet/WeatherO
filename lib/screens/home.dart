@@ -11,6 +11,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool init = true;
   PageController _pageController;
   int pageIndex = 0;
   final _globalKey = GlobalKey<ScaffoldState>();
@@ -19,16 +20,26 @@ class _HomeState extends State<Home> {
     _pageController = PageController(initialPage: 0, viewportFraction: .999);
     _pageController.addListener(() {
       setState(() {
-        pageIndex = (_pageController.page).ceil();
+        if (_pageController.page - _pageController.page.truncateToDouble() >=
+            0.5) {
+          pageIndex = _pageController.page.truncateToDouble().toInt() + 1;
+        } else {
+          pageIndex = _pageController.page.truncateToDouble().toInt();
+        }
       });
-      //print(_pageController.page);
     });
-    
+
     super.initState();
   }
+
   @override
   void didChangeDependencies() {
-    Provider.of<DataProvider>(context).init();
+    if (init) {
+      Provider.of<DataProvider>(context).init();
+      setState(() {
+        init = false;
+      });
+    }
     super.didChangeDependencies();
   }
 
@@ -40,9 +51,11 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print("state");
     final size = MediaQuery.of(context).size;
     final dataProvider = Provider.of<DataProvider>(context);
-    final List<City> _cityList=dataProvider.cities;
+    final Map<int, Map<String, dynamic>> weather = dataProvider.weather;
+    final List<City> _cityList = dataProvider.cities;
     return Scaffold(
       key: _globalKey,
       drawer: CustomDrawer(),
@@ -84,10 +97,32 @@ class _HomeState extends State<Home> {
                             children: _cityList.map((e) {
                               if (_cityList.indexOf(e) == pageIndex) {
                                 return Container(
-                                    height: 5, width: 5, color: Colors.amber);
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(3),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.5),
+                                            offset: Offset(1.2, 1.2))
+                                      ]),
+                                  height: 7,
+                                  width: 7,
+                                );
                               } else {
                                 return Container(
-                                    height: 5, width: 5, color: Colors.black);
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.circular(2),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color:
+                                                Colors.black54.withOpacity(0.5),
+                                            offset: Offset(1, 1))
+                                      ]),
+                                  height: 5,
+                                  width: 5,
+                                );
                               }
                             }).toList(),
                           ),
@@ -98,7 +133,9 @@ class _HomeState extends State<Home> {
                   Expanded(
                     child: PageView(
                       controller: _pageController,
-                      children: _cityList.map((city) => WeatherPage(city)).toList(),
+                      children: _cityList
+                          .map((city) => WeatherPage(city, weather[city.id]))
+                          .toList(),
                     ),
                   ),
                 ],
