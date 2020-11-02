@@ -1,7 +1,7 @@
 import 'package:WeatherO/screens/city_screen.dart';
-import 'package:WeatherO/screens/home.dart';
 import 'package:WeatherO/screens/setting_screen.dart';
 import 'package:flutter/material.dart';
+import '../tools/utils.dart' as utils;
 
 class CustomDrawer extends StatelessWidget {
   @override
@@ -10,14 +10,10 @@ class CustomDrawer extends StatelessWidget {
       width: MediaQuery.of(context).size.width * .7,
       child: Drawer(
           child: Container(
-        margin: EdgeInsets.only(top: 150),
+        margin: EdgeInsets.only(top: 40,right: 5),
         child: Column(children: [
-          _tile("Home", Icons.home, () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) {
-              return Home();
-            }));
-          }),
+          Container(padding: const EdgeInsets.only(left: 10),child: Image.asset("assets/icons/name1.png",height: 70,)),
+          SizedBox(height: 10,),
           _tile("Manage City", Icons.add, () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) {
@@ -44,8 +40,8 @@ class CustomDrawer extends StatelessWidget {
       shadowColor: Color(0xff536DFE),
       elevation: 6,
       child: ListTile(
-        leading: Icon(icon),
-        title: Text(title),
+        leading: Icon(icon,color: Color(0xff536DFE),size: 27,),
+        title: Text(title,style: TextStyle(foreground: Paint()..shader = utils.linearGradient),),
         onTap: onTap,
       ),
     );

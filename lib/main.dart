@@ -1,6 +1,7 @@
 import 'package:WeatherO/provider/data_provider.dart';
 import 'package:WeatherO/screens/home.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -11,7 +12,7 @@ void main() async {
       join(await getDatabasesPath(), 'weathero.db'), onCreate: (db, version) {
     // Run the CREATE TABLE statement on the database.
     return db.execute(
-      """CREATE TABLE city(id INTEGER PRIMARY KEY, name TEXT, adminDistrict TEXT,country TEXT,coordinates TEXT)""",
+      """CREATE TABLE city(id INTEGER PRIMARY KEY, name TEXT, adminDistrict TEXT,country TEXT,coordinates TEXT,timeZoneOffset INTEGER)""",
     );
   }, version: 1);
   await database.execute(
@@ -25,11 +26,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return ChangeNotifierProvider(
       create: (context) => DataProvider(_db),
       child: MaterialApp(
         title: 'WeatherO',
         theme: ThemeData(
+          canvasColor: Colors.white,
           fontFamily: "Lemonmilk",
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -40,5 +46,5 @@ class MyApp extends StatelessWidget {
   }
 }
 
-///!E/UIFirst,!I/chatty,!D/ColorViewRootUtil(29813),!I/SurfaceView( 5108),!D/SurfaceView( 5108),!D/ColorViewRootUtil( 5108)
-/////clear sky,[Few clouds,Overcast clouds,Scattered clouds,Broken clouds],[Moderate rain,Light Rain,Heavy Intensity Rain],Mist,
+///!UIFirst,!chatty,!ColorViewRootUtil,!SurfaceView
+///Drawar

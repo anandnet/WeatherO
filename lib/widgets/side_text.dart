@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import '../tools/utils.dart' as utils;
 
 class SideText extends StatelessWidget {
   final String text;
   final double fontSize;
   final Color color;
+  final bool gradient;
   SideText({
     this.text,
     this.fontSize,
+    this.gradient,
     this.color,
   });
   @override
@@ -15,7 +18,8 @@ class SideText extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         text,
-        style: TextStyle(fontSize: fontSize, color: color),
+        style: TextStyle(
+            foreground: gradient?(Paint()..shader = utils.linearGradient):(Paint()..color = color), fontSize: fontSize),
       ),
     );
   }

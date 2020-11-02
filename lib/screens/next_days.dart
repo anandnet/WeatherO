@@ -1,20 +1,26 @@
 import 'package:WeatherO/models/models.dart';
+import 'package:WeatherO/provider/data_provider.dart';
 import 'package:WeatherO/widgets/color_icons.dart';
 import 'package:WeatherO/widgets/info_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../tools/utils.dart' as utils;
 
 class NextDays extends StatelessWidget {
   final List<DailyWeather> _dWeather;
-  NextDays(this._dWeather);
+  final int _timeZoneOffset;
+  NextDays(this._dWeather, this._timeZoneOffset);
   @override
   Widget build(BuildContext context) {
-    print(_dWeather.length);
+    final dataprovider = Provider.of<DataProvider>(context);
     List<DailyWeather> tmp = [..._dWeather];
     tmp.removeAt(0);
-    DailyWeather tomm = tmp.removeAt(0);
+    final DailyWeather tomm = tmp.removeAt(0);
+    final DateTime tommTime =
+        utils.currentTime(tomm.timestamp);
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Container(
@@ -36,12 +42,15 @@ class NextDays extends StatelessWidget {
                       onTap: () {
                         Navigator.of(context).pop();
                       },
-                      child: Icon(Icons.keyboard_arrow_left, size: 40)),
+                      child: Icon(Icons.keyboard_arrow_left,
+                          size: 40, color: Color(0xff536DFE))),
                 ),
                 Container(
                     child: Text(
                   "Next 7 days",
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(
+                      fontSize: 20,
+                      foreground: Paint()..shader = utils.linearGradient),
                 )),
                 SizedBox(
                   width: 40,
@@ -54,7 +63,7 @@ class NextDays extends StatelessWidget {
               tag: '${_dWeather.hashCode}',
               child: Container(
                 margin: const EdgeInsets.only(top: 10),
-                height: size.height * .348,
+                height: 271,
                 width: size.width * .93,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
@@ -85,7 +94,9 @@ class NextDays extends StatelessWidget {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 Text(
-                                    "${utils.weekDays[utils.currentTime(tomm.timestamp).weekday]},${utils.currentTime(tomm.timestamp).day} ${utils.months[utils.currentTime(tomm.timestamp).month]}",
+                                    tomm.timestamp != null
+                                        ? "${utils.weekDays[tommTime.weekday]},${tommTime.day} ${utils.months[tommTime.month]}"
+                                        : "NA, NA",
                                     style: TextStyle(color: Colors.white))
                               ],
                             ),
@@ -95,8 +106,8 @@ class NextDays extends StatelessWidget {
                             Row(
                               children: [
                                 ColorIcons(
-                                    utils.iconName(
-                                        tomm.description, tomm.timestamp),
+                                    utils.iconName(tomm.description,
+                                        tomm.timestamp ,_timeZoneOffset),
                                     100),
                                 SizedBox(
                                   width: 10,
@@ -115,31 +126,42 @@ class NextDays extends StatelessWidget {
                                           ]),
                                       children: [
                                         TextSpan(
-                                            text:
-                                                "${utils.toCelcius(tomm.maxTemp)}",
+                                            text: tomm.maxTemp != null
+                                                ? "${utils.toCelcius(tomm.maxTemp, dataprovider.temperatureUnit)}"
+                                                : "NA",
                                             style: TextStyle(
                                                 fontSize: utils.toCelcius(
-                                                            tomm.maxTemp) <
+                                                            tomm.maxTemp,
+                                                            dataprovider
+                                                                .temperatureUnit) <
                                                         0.0
-                                                    ? 45
+                                                    ? 42
                                                     : 50)),
                                         TextSpan(
                                             text: "/",
                                             style: TextStyle(fontSize: 45)),
                                         TextSpan(
-                                            text:
-                                                "${utils.toCelcius(tomm.minTemp)}",
+                                            text: tomm.minTemp != null
+                                                ? "${utils.toCelcius(tomm.minTemp, dataprovider.temperatureUnit)}"
+                                                : "NA",
                                             style: TextStyle(
                                                 fontSize: utils.toCelcius(
-                                                            tomm.maxTemp) <
+                                                            tomm.minTemp,
+                                                            dataprovider
+                                                                .temperatureUnit) <
                                                         0.0
-                                                    ? 25
+                                                    ? 24
                                                     : 30)),
                                         TextSpan(
-                                          text: " \u2070\u1d9c\n",
+                                          text:
+                                              " ${String.fromCharCode(0x00B0)}" +
+                                                  (dataprovider.temperatureUnit
+                                                      ? "C"
+                                                      : "F") +
+                                                  "\n",
                                           style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: size.aspectRatio * 80,
+                                              fontSize: 30,
                                               shadows: <Shadow>[
                                                 Shadow(
                                                   offset: Offset(3.0, 3.0),
@@ -152,11 +174,14 @@ class NextDays extends StatelessWidget {
                                         TextSpan(
                                             text: "${tomm.description}",
                                             style: TextStyle(
-                                                fontSize:
-                                                    tomm.description.length <=
-                                                            18
-                                                        ? 18
-                                                        : 15)),
+                                                fontSize: tomm.description
+                                                            .length <=
+                                                        16
+                                                    ? 15
+                                                    : tomm.description.length <=
+                                                            22
+                                                        ? 12
+                                                        : 9)),
                                       ]),
                                 ),
                               ],
@@ -173,29 +198,36 @@ class NextDays extends StatelessWidget {
                                 children: [
                                   InfoWidget(
                                     "wind",
-                                    tomm.windSpeed.toStringAsFixed(1) + "KM/H",
+                                    tomm.windSpeed != null
+                                        ? tomm.windSpeed.toStringAsFixed(1)
+                                        : null,
                                     [Colors.blue, Colors.transparent],
                                     spaceBetween: 0,
                                     boxSize: 55,
                                     textColor: Colors.white,
                                     borderRadius: 15,
+                                    unitText: "KM/H",
                                   ),
                                   InfoWidget(
-                                      "cloud",
-                                      tomm.clouds.toString() + "%",
-                                      [Colors.brown, Colors.transparent],
-                                      spaceBetween: 0,
-                                      boxSize: 55,
-                                      textColor: Colors.white,
-                                      borderRadius: 15),
+                                    "cloud",
+                                    tomm.clouds,
+                                    [Colors.brown, Colors.transparent],
+                                    spaceBetween: 0,
+                                    boxSize: 55,
+                                    textColor: Colors.white,
+                                    borderRadius: 15,
+                                    unitText: "%",
+                                  ),
                                   InfoWidget(
-                                      "humidity",
-                                      tomm.humidity.toString() + "%",
-                                      [Colors.amber, Colors.transparent],
-                                      spaceBetween: 0,
-                                      boxSize: 55,
-                                      textColor: Colors.white,
-                                      borderRadius: 15)
+                                    "humidity",
+                                    tomm.humidity,
+                                    [Colors.amber, Colors.transparent],
+                                    spaceBetween: 0,
+                                    boxSize: 55,
+                                    textColor: Colors.white,
+                                    borderRadius: 15,
+                                    unitText: "%",
+                                  )
                                 ],
                               ),
                             )
@@ -211,15 +243,31 @@ class NextDays extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return ListTile(
                       contentPadding: EdgeInsets.only(left: 40, right: 40),
-                      leading: Text(utils.weekDays[
-                          utils.currentTime(tmp[index].timestamp).weekday]),
+                      leading: Text(
+                          utils.weekDays[utils
+                              .currentTime(
+                                  tmp[index].timestamp)
+                              .weekday],
+                          style: TextStyle(
+                              foreground: Paint()
+                                ..shader = utils.linearGradient)),
                       title: Center(
                           child: Text(
-                              "${utils.toCelcius(tmp[index].maxTemp)}/${utils.toCelcius(tmp[index].minTemp)}")),
-                      subtitle: Center(child: Text(tmp[index].description)),
+                        "${tmp[index].maxTemp != null ? utils.toCelcius(tmp[index].maxTemp, dataprovider.temperatureUnit) : "NA"}${String.fromCharCode(0x00B0)}/${tmp[index].minTemp != null ? utils.toCelcius(tmp[index].minTemp, dataprovider.temperatureUnit) : "NA"}${String.fromCharCode(0x00B0)}",
+                        style: TextStyle(
+                            foreground: Paint()..shader = utils.linearGradient),
+                      )),
+                      subtitle: Center(
+                          child: Text(
+                              tmp[index].description != null
+                                  ? tmp[index].description
+                                  : "NA",
+                              style: TextStyle(
+                                  foreground: Paint()
+                                    ..shader = utils.linearGradient))),
                       trailing: ColorIcons(
                           utils.iconName(
-                              tmp[index].description, tmp[index].timestamp),
+                              tmp[index].description, tmp[index].timestamp,_timeZoneOffset),
                           40),
                     );
                   }),

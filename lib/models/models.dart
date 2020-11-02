@@ -4,8 +4,15 @@ class City {
   final String adminDistrict;
   final String country;
   final List<double> coordinates;
+  final bool temporary;
+  int timeZoneOffset;
   City(
-      {this.name, this.adminDistrict, this.country, this.coordinates, this.id});
+      {this.name,
+      this.adminDistrict,
+      this.country,
+      this.coordinates,
+      this.id,
+      this.temporary,this.timeZoneOffset});
   Map<String, dynamic> toMap() {
     return {
       "id": id,
@@ -13,6 +20,7 @@ class City {
       'adminDistrict': adminDistrict,
       'country': country,
       'coordinates': coordinates.toString(),
+      'timeZoneOffset':timeZoneOffset
     };
   }
 }
