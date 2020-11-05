@@ -25,7 +25,7 @@
  
  #### Icons:
 
-       Created by myself found [here](https://www.figma.com/file/sFsu5UFcTulbk0Fzf8CtJH/Weather-3d-icon)
+   Created by myself found [here](https://www.figma.com/file/sFsu5UFcTulbk0Fzf8CtJH/Weather-3d-icon)
 
 #### Api Used:
  * [OneWeathermap  Api](https://openweathermap.org/api) for weather
